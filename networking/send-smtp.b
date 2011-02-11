@@ -84,5 +84,5 @@ smtp: context [
 
 /* Example
 smtp/set-address "smtp-server.host.com" "me@somewhere.net" "you@somewhere.net"
-send "Subject: Test 8^d^aTest from Boron^d^aLine 2"
+send "Subject: Test 8^d^a^d^aTest from Boron^/Line 2"
 */
