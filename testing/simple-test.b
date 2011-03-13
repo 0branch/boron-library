@@ -1,7 +1,7 @@
 /*
   title: "Simple-Test"
-  version: 0.4.0
-  date: 25-Feb-2011
+  version: 0.4.1
+  date: 2-Mar-2011
   author: Peter W A Wood
   purpose: {A simple boron testing framework}
    
@@ -197,15 +197,14 @@ simple-test: make context! [
 	    |
 	    rb                            ;; result block
 	    res                           ;; test result
+	    correct                       ;; true or false
 	  ][
 	    inc-assertion-no
 	    get-actual-result
 	    
-	    either assert-false [
-	      res: either actual ["failed"] ["passed"]
-	    ][
-	      res: either actual ["passed"] ["failed"]
-	    ]
+	    correct: either assert-false [false] [true]
+	    res: either eq? actual correct ["passed"] ["failed"]
+	    
 	    rb: reduce [
 	      'result :res
 	      'actual mold :actual
@@ -218,6 +217,7 @@ simple-test: make context! [
 	  get-actual-result: does [
 	    ;; get the actual result
       either all [
+        not unset? first actual-block
         equal? 'do first actual-block
         equal? 1 size? actual-block
       ][
