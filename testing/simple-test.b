@@ -466,6 +466,7 @@ simple-test: make context! [
 	    ]
 	    
 	    ;; any failures ?
+	    any-failures: false
 	    foreach [a-no a-blk] cr/assertions [ 
 	      if ne? a-blk/result "passed" [any-failures: true]
 	    ]
