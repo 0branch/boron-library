@@ -2,14 +2,14 @@
 # the interpreters and run a 'quit function.
 
 
-echo "Binaries\n--------" >results
+echo -e "Binaries\n--------" >results
 file -L `which boron`  >>results
 file -L `which lua`    >>results
 file -L `which perl`   >>results
 file -L `which python` >>results
 file -L `which rebol`  >>results
 
-echo "\nInstructions   Heap   Command\n-----------------------------" >>results
+echo -e "\nInstructions   Heap   Command\n-----------------------------" >>results
 
 echo "quit" >quit.x
 valgrind --tool=massif --massif-out-file=massif.out boron quit.x

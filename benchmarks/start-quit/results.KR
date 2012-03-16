@@ -1,11 +1,3 @@
-Versions
---------
-  Boron 0.1.11
-  Lua 5.1.4
-  perl 5.10.1
-  Python 2.6.4
-  REBOL/Core 2.6.2
-
 Binaries
 --------
 /usr/bin/boron: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.18, stripped
@@ -14,10 +6,13 @@ Binaries
 /usr/bin/python: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.18, stripped
 /usr/bin/rebol: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.0.0, stripped
 
-Instructions   Heap   Command
------------------------------
-   1381890      91952 boron quit.x
-    843503      33560 lua quit.x
-   1913700     184448 perl quit.x
-  42064973    2399896 python quit.x
-  28047565    1766552 rebol -q quit.x
+Instructions   Heap   Command            Version
+--------------------------------------------------------
+   1381890      91952 boron quit.x       0.1.11
+   1421551      91896 boron quit.x       0.2.4
+    843503      33560 lua quit.x         5.1.4
+   1913700     184448 perl quit.x        5.10.1
+   1635768     185432 perl quit.x        5.14.2
+  42064973    2399896 python quit.x      2.6.4
+  52786470    2132896 python quit.x      2.7.2
+  28047565    1766552 rebol -q quit.x    Core 2.6.2
