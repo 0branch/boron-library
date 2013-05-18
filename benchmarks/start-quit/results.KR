@@ -3,8 +3,10 @@ Binaries
 /usr/bin/boron: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.18, stripped
 /usr/bin/lua: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.18, stripped
 /usr/bin/perl: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.18, stripped
+/usr/bin/php: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.32, stripped
 /usr/bin/python: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.18, stripped
 /usr/bin/rebol: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.0.0, stripped
+/usr/bin/r3: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.32, stripped
 
 Instructions   Heap   Command            Version
 --------------------------------------------------------
@@ -13,6 +15,8 @@ Instructions   Heap   Command            Version
     843503      33560 lua quit.x         5.1.4
    1913700     184448 perl quit.x        5.10.1
    1635768     185432 perl quit.x        5.14.2
+  18660798    2799040 php quit.x         5.3.20
   42064973    2399896 python quit.x      2.6.4
   52786470    2132896 python quit.x      2.7.2
   28047565    1766552 rebol -q quit.x    Core 2.6.2
+  24522212    1607952 r3 quit.x          3.0 Alpha

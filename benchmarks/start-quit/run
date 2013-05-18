@@ -1,36 +1,27 @@
 # Compares the number of CPU instructions and heap memory required to start
 # the interpreters and run a 'quit function.
 
-
 echo -e "Binaries\n--------" >results
 file -L `which boron`  >>results
 file -L `which lua`    >>results
 file -L `which perl`   >>results
+file -L `which php`    >>results
 file -L `which python` >>results
 file -L `which rebol`  >>results
+file -L `which r3`     >>results
 
 echo -e "\nInstructions   Heap   Command\n-----------------------------" >>results
 
-echo "quit" >quit.x
-valgrind --tool=massif --massif-out-file=massif.out boron quit.x
-./vm-summary.b massif.out >>results
+test () {
+	echo "$2" >quit.x
+	valgrind --tool=massif --massif-out-file=massif.out "$1" quit.x
+	./vm-summary.b massif.out >>results
+}
 
-
-echo "os.exit()" >quit.x
-valgrind --tool=massif --massif-out-file=massif.out lua quit.x
-./vm-summary.b massif.out >>results
-
-
-echo "exit;" >quit.x
-valgrind --tool=massif --massif-out-file=massif.out perl quit.x
-./vm-summary.b massif.out >>results
-
-
-echo "quit()" >quit.x
-valgrind --tool=massif --massif-out-file=massif.out python quit.x
-./vm-summary.b massif.out >>results
-
-
-echo "rebol [] quit" >quit.x
-valgrind --tool=massif --massif-out-file=massif.out rebol -q quit.x
-./vm-summary.b massif.out >>results
+test boron  "quit"
+test lua    "os.exit()"
+test perl   "exit;"
+test php    "<?php exit; ?>"
+test python "quit()"
+test "rebol -q" "rebol [] quit"
+test r3     "quit"
