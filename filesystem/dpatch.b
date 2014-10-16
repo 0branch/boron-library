@@ -1,6 +1,6 @@
 #!/usr/bin/boron -s
 /*
-    dpatch v0.5
+    dpatch v0.6
     Patch directory using tar and xdelta.
 
     TODO: Handle file renaming.
@@ -59,6 +59,8 @@ format: func [fmt data | out txt pad tok plen] [
     out
 ]
 
+file-size: func [f] [second info? f]
+
 ;-----------------------------------------------------------------------------
 
 local-paths: func [root files | loc f] [
@@ -68,8 +70,8 @@ local-paths: func [root files | loc f] [
 ]
 
 print-file: func [f] [
-   ;print format [-9 ' ' 2,7 ' ' 0] reduce [second info? f  checksum f  f]
-    print format [-9 ' ' 0] reduce [second info? f  f]
+   ;print format [-9 ' ' 2,7 ' ' 0] reduce [file-size f  checksum f  f]
+    print format [-9 ' ' 0] reduce [file-size f  f]
 ]
 
 build-patch: does [
@@ -96,18 +98,22 @@ build-patch: does [
         append append new-files
             mark-sol to-file out
             mark-sol/clear f
-        execute rejoin ["cp " d2 f ' ' pdir '/' out]
+        execute rejoin [{cp "} d2 f {" } pdir '/' out]
     ]
 
     foreach f intersect loc1 loc2 [
-        if ne? checksum old: join d1 f
-               checksum new: join d2 f [
+        old: join d1 f
+        new: join d2 f
+        if any [
+            ne? file-size old file-size new
+            ne? checksum  old checksum  new
+        ][
             out: delta-fn
             append append deltas
                 mark-sol to-file out
                 mark-sol/clear f
             execute rejoin [
-                "xdelta3 -f -S djw -s " old ' ' new ' ' pdir '/' out
+                {xdelta3 -f -S djw -s "} old {" "} new {" } pdir '/' out
             ]
         ]
     ]
@@ -120,7 +126,7 @@ build-patch: does [
     ;probe patch
     save join pdir %/database.b patch
 
-    execute rejoin [ "tar cJf " slice d2 -1 ".tar.xz " pdir]
+    execute rejoin [ {tar cJf "} slice d2 -1 {.tar.xz" } pdir]
 ]
 
 apply-patch: func [root patch | db delta f tmp] [
