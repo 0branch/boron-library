@@ -61,6 +61,11 @@ format: func [fmt data | out txt pad tok plen] [
 
 file-size: func [f] [second info? f]
 
+exec: func [cmd] [
+    rc: execute rejoin cmd
+    ifn zero? rc [quit/return rc]
+]
+
 ;-----------------------------------------------------------------------------
 
 local-paths: func [root files | loc f] [
@@ -98,7 +103,7 @@ build-patch: does [
         append append new-files
             mark-sol to-file out
             mark-sol/clear f
-        execute rejoin [{cp "} d2 f {" } pdir '/' out]
+        exec [{cp "} d2 f {" } pdir '/' out]
     ]
 
     foreach f intersect loc1 loc2 [
@@ -112,9 +117,7 @@ build-patch: does [
             append append deltas
                 mark-sol to-file out
                 mark-sol/clear f
-            execute rejoin [
-                {xdelta3 -f -S djw -s "} old {" "} new {" } pdir '/' out
-            ]
+            exec [{xdelta3 -f -S djw -s "} old {" "} new {" } pdir '/' out]
         ]
     ]
 
@@ -133,7 +136,7 @@ apply-patch: func [root patch | db delta f tmp] [
     root: terminate to-file root  '/'
     tmp: join root %_dpatch_.tmp    ; Keep tmp on same filesystem as root!
 
-    execute rejoin ["tar xJf " patch]
+    exec [{tar xJf "} patch '"']
     patch: %patch/
     db: load join patch %database.b
 
@@ -148,7 +151,7 @@ apply-patch: func [root patch | db delta f tmp] [
     foreach [delta f] db/xdelta [
         f: join root f
         rename f tmp
-        execute rejoin ["xdelta3 -d -s " tmp ' ' patch delta ' ' f]
+        exec [{xdelta3 -d -s "} tmp {" "} patch delta {" "} f '"']
     ]
 
     if exists? tmp [delete tmp]
