@@ -12,11 +12,14 @@ Instructions   Heap   Command            Version
 --------------------------------------------------------
    1381890      91952 boron quit.x       0.1.11
    1421551      91896 boron quit.x       0.2.4
+   1470811      94032 boron quit.x       0.2.10
     843503      33560 lua quit.x         5.1.4
    1913700     184448 perl quit.x        5.10.1
    1635768     185432 perl quit.x        5.14.2
+   1774311     195512 perl quit.x        5.16.3
   18660798    2799040 php quit.x         5.3.20
   42064973    2399896 python quit.x      2.6.4
   52786470    2132896 python quit.x      2.7.2
+  27281586    2158096 python quit.x      2.7.5
   28047565    1766552 rebol -q quit.x    Core 2.6.2
   24522212    1607952 r3 quit.x          3.0 Alpha
