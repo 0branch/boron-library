@@ -60,9 +60,10 @@ format: func [fmt data | out txt pad tok plen] [
 ]
 
 file-size: func [f] [second info? f]
+file-perm: func [f] [pick info? f 5]
 
 exec: func [cmd] [
-    rc: execute rejoin cmd
+    rc: execute /*probe*/ rejoin cmd
     ifn zero? rc [quit/return rc]
 ]
 
@@ -125,6 +126,7 @@ build-patch: does [
         added:   new-files
         removed: difference loc1 loc2
         xdelta:  deltas
+        ;chmod:   []
     ]
     ;probe patch
     save join pdir %/database.b patch
@@ -152,7 +154,14 @@ apply-patch: func [root patch | db delta f tmp] [
         f: join root f
         rename f tmp
         exec [{xdelta3 -d -s "} tmp {" "} patch delta {" "} f '"']
+        if ne? p: file-perm tmp 6,6,4,0 [
+            exec [{chmod } p/4 p/1 p/2 p/3 { "} f '"']
+        ]
     ]
+
+    ;foreach [p f] db/chmod [
+    ;    exec [{chmod } p { "} join root f '"']
+    ;]
 
     if exists? tmp [delete tmp]
 
