@@ -47,7 +47,7 @@ foreach d dice [
 print hd
 print hr
 
-random/seed to-decimal now
+random/seed to-double now
 loop rows [
     clear ln
     prev-d: first dice
