@@ -1,5 +1,5 @@
 #!/usr/bin/boron -sp
-; Supplement file tracker v0.6.1.
+; Supplement file tracker v0.6.2.
 ; External commands used: cp, curl, find, install, rsync
 
 usage: {{
@@ -147,6 +147,14 @@ load-index: does [
     parse-index read/text join sroot %/index
 ]
 
+save-index: func [idx /local cs fn] [
+    istr: make string! 4096
+    foreach [cs fn] idx [
+        append istr rejoin [cs ' ' fn '^/']
+    ]
+    write join sroot %/index istr
+]
+
 copy-from-index: func [idx /local cs fn] [
     ; Obtain the set of unique paths, create those directories, then copy
     ; the files.
@@ -201,22 +209,30 @@ switch act [
 
             append index rejoin [cs ' ' fn '^/']
         ]
-        write/append join sroot %/index index
+        with-flock join sroot %/lock [
+            write/append join sroot %/index index
+        ]
     ]
 
     remove [
-        print "TODO: Implement remove"
-        /*
+        ; Remove the working file and index entry, but don't touch the repo.
         set-sroot
         with-flock join sroot %/lock [
-            idx: load-index
+            removed: 0
+            index: load-index
             foreach fn next args [
-                if index-remove fn [
+                fn: join local-path fn
+                either pos: find index fn [
+                    remove/part prev pos 2
                     delete fn
+                    ++ removed
+                ][
+                    print ["Index does not contain" fn]
+                    rc: 1
                 ]
             ]
+            ifn zero? removed [save-index index]
         ]
-        */
     ]
 
     verify [
