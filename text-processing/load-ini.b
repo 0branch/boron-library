@@ -3,7 +3,7 @@
 ; Key names are converted to words so funky names with paths or arrays
 ; are not supported.
 
-load-ini: func [file | tree blk wname n v] [
+load-ini: func [file] [
     tree: blk: make block! 16
     wname: func [str] [
         to-set-word replace/all trim str ' ' '_'
