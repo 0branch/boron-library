@@ -1,5 +1,5 @@
 #!/usr/bin/boron -sp
-; Supplement file tracker v0.6.
+; Supplement file tracker v0.6.1.
 ; External commands used: cp, curl, find, install, rsync
 
 usage: {{
@@ -9,10 +9,10 @@ Actions:
   add <files>           Add files to supplement and index.
   convert               Convert git-annex to supplement.
   help                  Print usage.
-  init                  Create new local supplement repository.
+  init [-r]             Create new local supplement repository.
   prune                 Remove all supplement files not in the current index.
-  pull [remote]         Transfer files from remote to local supplement.
-  push [remote]         Transfer files from local to remote supplement.
+  pull [<remote>] [-i]  Transfer files from remote to local supplement.
+  push [<remote>]       Transfer files from local to remote supplement.
   remove <files>        Remove files from supplement and index.
   reset                 Restore working files from index.
   source <name> <url>   Define remote supplement to fetch files from.
@@ -21,9 +21,9 @@ Actions:
 
 ifn args [print usage quit]
 
+sroot:
 sup-dir: %.supplement
-sroot: sup-dir
-;sroot: %/tmp/sup
+local-path: %
 config: context [
     version:
     repository:
@@ -31,7 +31,7 @@ config: context [
 ]
 index: none
 
-_execute: :print    ; For testing.
+;_execute: :print    ; For testing.
 
 fatal: func ['code msg] [
     print msg
@@ -44,19 +44,25 @@ fatal: func ['code msg] [
     ] code
 ]
 
+/*
+  Change the current directory to where the supplement resides and set
+  local-path to the path nodes from there to the previously current directory.
+*/
 set-sroot: func [/extern sroot] [
+    clear local-path
+
     ; Checking current directory (or hard-coded test path) first.
     ifn exists? sroot [
-        path: current-dir
+        path: copy cd: current-dir
         clear prev tail path    ; Remove trailing slash.
         while [pos: find/last path '/'][
             change next pos sup-dir
            ;probe path
             if exists? path [
-               ;return sroot: path
                 clear pos
                 change-dir path
-                return true
+                append local-path skip cd index? pos
+                exit
             ]
             clear pos
         ]
@@ -90,12 +96,12 @@ valid-name?: func [name] [
     parse name [alpha any alpha-num]
 ]
 
-init-repository: does [
+init-repository: func [repo] [
     ifn exists? cf: join sroot %/config [
         make-dir sroot
-        save cf [
+        save cf context [
             version: 1
-            repository: true
+            repository: repo
             remotes: []
         ]
     ]
@@ -145,7 +151,7 @@ copy-from-index: func [idx /local cs fn] [
     ; Obtain the set of unique paths, create those directories, then copy
     ; the files.
 
-    paths: []
+    paths: make block! 128
     foreach [cs fn] idx [
         if pos: find/last fn '/' [
             path: slice fn pos
@@ -159,8 +165,23 @@ copy-from-index: func [idx /local cs fn] [
         make-dir/all first paths
     ]
     foreach [cs fn] idx [
-        execute rejoin [
-            "install -p -m 664 " checksum-name cs ' ' '"' fn '"'
+        execute rejoin ["install -p -m 664 " checksum-name cs ' ' '"' fn '"']
+    ]
+]
+
+/*
+  The parse-args spec has two rules:
+     char!  word!   Set word to none or true if the option is present.
+     /value word!   Set word to any argument not starting with '-'
+*/
+parse-args: func [ai spec block!] [
+    set spec none
+    forall ai [
+        arg: first ai
+        either eq? '-' first arg [
+            if word: select spec second arg [set word true]
+        ][
+            if word: select spec /value [set word arg]
         ]
     ]
 ]
@@ -170,11 +191,11 @@ rc: 0
 act: to-word first args
 switch act [
     add [
-        ; FIXME: Must currently add from root for correct path.
         ; FIXME: Check if file is already indexed.
         set-sroot
         index: make string! 1024
         foreach fn next args [
+            fn: join local-path fn
             make-checksum-dir cs: checksum-str fn
             execute rejoin [{cp -L "} fn {" } checksum-name cs]
 
@@ -214,11 +235,15 @@ switch act [
     ]
 
     pull [
+        parse-args next args ['i' fetch-index /value remote]
+
         set-sroot
-        url: load-config-url second args
+        url: load-config-url remote
         either http-url? url [
-            execute rejoin [
-                "curl -s -S " terminate url '/' %index " -o " sroot %/index
+            if fetch-index [
+                execute rejoin [
+                    "curl -s -S " terminate url '/' %index " -o " sroot %/index
+                ]
             ]
             foreach [cs fn] load-index [
                 print ["Downloading" fn]
@@ -230,6 +255,7 @@ switch act [
         ][
             execute rejoin [
                 "rsync -a -e ssh --exclude=lock --exclude=config "
+                either fetch-index "" "--exclude=index "
                 terminate url '/' ' ' sup-dir
             ]
         ]
@@ -281,7 +307,7 @@ switch act [
     ]
 
     init [
-        init-repository
+        init-repository eq? "-r" second args
     ]
 
     convert [
@@ -305,7 +331,7 @@ switch act [
         ]]
         ;probe db
 
-        init-repository
+        init-repository true
 
         index: make string! 2048
         emit: func [d] [append index d]
