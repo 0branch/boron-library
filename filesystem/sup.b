@@ -1,5 +1,5 @@
 #!/usr/bin/boron -sp
-; Supplement file tracker v0.6.2.
+; Supplement file tracker v0.6.3.
 ; External commands used: cp, curl, find, install, rsync
 
 usage: {{
@@ -134,11 +134,13 @@ load-config-url: func [rname] [
 parse-index: func [str] [
     ; Should probably store file size for quick modify check.
     index: make block! 128
-    hex: charset "0123456789abcdefABCDEF"
-    parse str [some[
-        cs: some hex :cs ' ' fn: to '^/' :fn skip
-        (append append index mark-sol cs fn)
-    ]]
+    if string? str [
+        hex: charset "0123456789abcdefABCDEF"
+        parse str [some[
+            cs: some hex :cs ' ' fn: to '^/' :fn skip
+            (append append index mark-sol cs fn)
+        ]]
+    ]
     index
 ]
 
@@ -199,18 +201,34 @@ rc: 0
 act: to-word first args
 switch act [
     add [
-        ; FIXME: Check if file is already indexed.
         set-sroot
-        index: make string! 1024
-        foreach fn next args [
-            fn: join local-path fn
-            make-checksum-dir cs: checksum-str fn
-            execute rejoin [{cp -L "} fn {" } checksum-name cs]
-
-            append index rejoin [cs ' ' fn '^/']
-        ]
         with-flock join sroot %/lock [
-            write/append join sroot %/index index
+            modified: false
+            index: load-index
+            foreach fn next args [
+                fn: join local-path fn
+                cs: checksum-str fn
+                in-repo: find index cs
+
+                file-mod: either pos: find index fn [
+                    if ne? cs pick pos -1 [
+                        poke pos -1 cs
+                        true
+                    ]
+                ][
+                    append append index mark-sol cs fn
+                    true
+                ]
+
+                if file-mod [
+                    modified: true
+                    ifn in-repo [
+                        make-checksum-dir cs
+                        execute rejoin [{cp -L "} fn {" } checksum-name cs]
+                    ]
+                ]
+            ]
+            if modified [save-index index]
         ]
     ]
 
@@ -324,6 +342,7 @@ switch act [
 
     init [
         init-repository eq? "-r" second args
+        write join sroot %/index ""
     ]
 
     convert [
