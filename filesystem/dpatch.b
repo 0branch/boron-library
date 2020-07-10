@@ -1,6 +1,6 @@
 #!/usr/bin/boron -s
 /*
-    dpatch v0.6
+    dpatch v0.7
     Patch directory using tar and xdelta.
 
     TODO: Handle file renaming.
@@ -14,7 +14,7 @@ if empty? args [
 context [
     flist: make block! 128
 
-    read-dir2: func [dir | name] [
+    read-dir2: func [dir] [
         foreach name read dir [
             name: join dir name
             either dir? name [
@@ -32,33 +32,6 @@ context [
     ]
 ]
 
-format: func [fmt data | out txt pad tok plen] [
-    out: make string! 32
-    data: reduce data
-    pad: ' '
-    parse fmt [some[
-        set tok
-        int! (
-            txt: to-text first ++ data
-            plen: sub abs tok size? txt
-            either lt? tok 0 [
-                append/repeat out pad plen
-                append out txt
-            ][
-                append out txt
-                append/repeat out pad plen
-            ]
-        )    
-      | string!/char! (append out tok)
-      | coord! (
-            txt: to-text first ++ data
-            append out slice txt tok
-        )
-      | 'pad set pad skip
-    ]]
-    out
-]
-
 file-size: func [f] [second info? f]
 file-perm: func [f] [pick info? f 5]
 
@@ -69,7 +42,7 @@ exec: func [cmd] [
 
 ;-----------------------------------------------------------------------------
 
-local-paths: func [root files | loc f] [
+local-paths: func [root files /local f] [
     root: size? root
     loc: copy files
     map f loc [skip f root]
@@ -134,7 +107,7 @@ build-patch: does [
     execute rejoin [ {tar cJf "} slice d2 -1 {.tar.xz" } pdir]
 ]
 
-apply-patch: func [root patch | db delta f tmp] [
+apply-patch: func [root patch /local delta f] [
     root: terminate to-file root  '/'
     tmp: join root %_dpatch_.tmp    ; Keep tmp on same filesystem as root!
 
