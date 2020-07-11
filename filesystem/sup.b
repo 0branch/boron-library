@@ -1,5 +1,5 @@
 #!/usr/bin/boron -sp
-; Supplement file tracker v0.6.4.
+; Supplement file tracker v0.6.5.
 ; Documentation is at http://urlan.sourceforge.net/sup.html
 ; External commands used: cp, curl, find, install, rsync
 
@@ -8,13 +8,13 @@ Usage: sup <action>
 
 Actions:
   add <files>           Add files to supplement and index.
-  convert               Convert git-annex to supplement.
   help                  Print usage.
+  import                Copy git-annex files into a new supplement.
   init [-r]             Create new local supplement repository.
   prune                 Remove all supplement files not in the current index.
   pull [<remote>] [-i]  Transfer files from remote to local supplement.
   push [<remote>]       Transfer files from local to remote supplement.
-  remove <files>        Remove files from supplement and index.
+  remove <files>        Remove files from the index and working directory.
   reset                 Restore working files from index.
   source <name> <url>   Define remote supplement to fetch files from.
   verify                Show working files which do not match the index.
@@ -355,9 +355,10 @@ switch act [
         ]
     ]
 
-    convert [
+    import [
         ifn exists? %.git/annex [
-            fatal noinput "Convert must be run from a Git project root"
+            fatal noinput
+                "No annex found; import must be run from a Git project root"
         ]
 
         list: make string! 2048
