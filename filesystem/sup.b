@@ -350,7 +350,9 @@ switch act [
 
     init [
         init-repository eq? "-r" second args
-        write join sroot %/index ""
+        ifn exists? index: join sroot %/index [
+            write index ""
+        ]
     ]
 
     convert [
