@@ -1,5 +1,6 @@
 #!/usr/bin/boron -sp
 ; Supplement file tracker v0.6.4.
+; Documentation is at http://urlan.sourceforge.net/sup.html
 ; External commands used: cp, curl, find, install, rsync
 
 usage: {{
