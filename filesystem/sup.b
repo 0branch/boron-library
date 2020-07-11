@@ -1,5 +1,5 @@
 #!/usr/bin/boron -sp
-; Supplement file tracker v0.6.3.
+; Supplement file tracker v0.6.4.
 ; External commands used: cp, curl, find, install, rsync
 
 usage: {{
@@ -274,17 +274,24 @@ switch act [
         set-sroot
         url: load-config-url remote
         either http-url? url [
+            terminate url '/'
             if fetch-index [
                 execute rejoin [
-                    "curl -s -S " terminate url '/' %index " -o " sroot %/index
+                    "curl -s -S " url %index " -o " sroot %/index
                 ]
             ]
             foreach [cs fn] load-index [
                 print ["Downloading" fn]
                 ipath: checksum-ipath cs
-                execute rejoin [
-                    "curl -s -S " url ipath " --create-dirs -o " sroot '/' ipath
+                if config/repository [
+                    fn: rejoin [sroot '/' ipath]
                 ]
+                execute rejoin [
+                    "curl -s -S " url ipath " --create-dirs -o " fn
+                ]
+            ]
+            if config/repository [
+                copy-from-index load-index
             ]
         ][
             execute rejoin [
@@ -292,8 +299,8 @@ switch act [
                 either fetch-index "" "--exclude=index "
                 terminate url '/' ' ' sup-dir
             ]
+            copy-from-index load-index
         ]
-        copy-from-index load-index
     ]
 
     push [
