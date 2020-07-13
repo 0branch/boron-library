@@ -1,5 +1,5 @@
 #!/usr/bin/boron -sp
-; Supplement file tracker v0.6.5.
+; Supplement file tracker v0.6.6.
 ; Documentation is at http://urlan.sourceforge.net/sup.html
 ; External commands used: cp, curl, find, install, rsync
 
@@ -15,7 +15,7 @@ Actions:
   pull [<remote>] [-i]  Transfer files from remote to local supplement.
   push [<remote>]       Transfer files from local to remote supplement.
   remove <files>        Remove files from the index and working directory.
-  reset                 Restore working files from index.
+  reset [<remote>]      Restore working files from index.
   source <name> <url>   Define remote supplement to fetch files from.
   verify                Show working files which do not match the index.
 }}
@@ -116,8 +116,7 @@ save-config: does [
     save join sroot %/config config
 ]
 
-load-config-url: func [rname] [
-    load-config
+config-url: func [rname] [
     either rname [
         ifn valid-name? rname [
             fatal usage join "Invalid remote name " rname
@@ -176,7 +175,7 @@ copy-from-index: func [idx /local cs fn] [
         make-dir/all first paths
     ]
     foreach [cs fn] idx [
-        execute rejoin ["install -p -m 664 " checksum-name cs ' ' '"' fn '"']
+        execute rejoin ["install -C -m 664 " checksum-name cs ' ' '"' fn '"']
     ]
 ]
 
@@ -273,7 +272,8 @@ switch act [
         parse-args next args ['i' fetch-index /value remote]
 
         set-sroot
-        url: load-config-url remote
+        load-config
+        url: config-url remote
         either http-url? url [
             terminate url '/'
             if fetch-index [
@@ -306,7 +306,8 @@ switch act [
 
     push [
         set-sroot
-        url: load-config-url second args
+        load-config
+        url: config-url second args
         if http-url? url [
             fatal usage "Cannot push to HTTP remote"
         ]
@@ -318,11 +319,32 @@ switch act [
 
     prune [
         print "TODO: Implement prune"
+        rc: 1
     ]
 
     reset [
         set-sroot
-        copy-from-index load-index
+        load-config
+        either config/repository [
+            copy-from-index load-index
+        ][
+            url: config-url second args
+            ifn http-url? url [
+                fatal usage "Cannot reset via rsync in lean mode"
+            ]
+            foreach [cs fn] load-index [
+                if any [
+                    not exists? fn
+                    ne? cs checksum-str fn
+                ][
+                    print ["Downloading" fn]
+                    execute rejoin [
+                        "curl -s -S " url checksum-ipath cs
+                        " --create-dirs -o " fn
+                    ]
+                ]
+            ]
+        ]
     ]
 
     source [
