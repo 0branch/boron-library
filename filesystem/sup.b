@@ -1,5 +1,5 @@
 #!/usr/bin/boron -sp
-; Supplement file tracker v0.6.6.
+; Supplement file tracker v0.6.7.
 ; Documentation is at http://urlan.sourceforge.net/sup.html
 ; External commands used: cp, curl, find, install, rsync
 
@@ -11,6 +11,7 @@ Actions:
   help                  Print usage.
   import                Copy git-annex files into a new supplement.
   init [-r]             Create new local supplement repository.
+  move <from> <to>      Change file path in working directory and index.
   prune                 Remove all supplement files not in the current index.
   pull [<remote>] [-i]  Transfer files from remote to local supplement.
   push [<remote>]       Transfer files from local to remote supplement.
@@ -317,11 +318,6 @@ switch act [
         ]
     ]
 
-    prune [
-        print "TODO: Implement prune"
-        rc: 1
-    ]
-
     reset [
         set-sroot
         load-config
@@ -347,6 +343,30 @@ switch act [
         ]
     ]
 
+    move [
+        ifn all [
+            from: second args
+            to: third args
+            ne? from to
+        ][
+            fatal usage "Move requires from and to arguments"
+        ]
+
+        set-sroot
+        from: join local-path from
+        to:   join local-path to
+        with-flock join sroot %/lock [
+            index: load-index
+            either pos: find index from [
+                rename from to
+                poke pos 1 to
+                save-index index
+            ][
+                fatal unavailable "File not found in .supplement/index"
+            ]
+        ]
+    ]
+
     source [
         ifn all [
             name: second args
@@ -368,6 +388,11 @@ switch act [
             ]
             save-config
         ]
+    ]
+
+    prune [
+        print "TODO: Implement prune"
+        rc: 1
     ]
 
     init [
