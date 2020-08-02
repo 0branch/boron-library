@@ -21,7 +21,7 @@ An additional [sup-git] script can be used for a bit more integration with Git.
 
 > **_WARNING:_** The software is currently in beta so back up your files!
 
-File transfer is currently limited to rsync over SSH and HTTP.
+File transfer is currently limited to rsync (local or via SSH) and HTTP.
 
 
 Installation
@@ -159,7 +159,11 @@ The remote name is an identifier to be used with actions such as [push] &
 The name is restricted to ASCII letter, digit, underscore and dash characters.
 It must begin with a letter.
 
-If the URL does not begin with "http" then it is assumed to be a SSH server for rsync use.
+The URL argument determines the remote type using these rules:
+
+  @. An HTTP remote begins with "http".
+  @. A local rsync directory begins with "/".
+  @. Otherwise the URL is assumed to be a SSH server for rsync use.
 
 This example will work for SourceForge project-web servers:
 

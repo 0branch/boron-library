@@ -1,5 +1,5 @@
 #!/usr/bin/boron -sp
-; Supplement file tracker v0.6.7.
+; Supplement file tracker v0.6.8.
 ; Documentation is at http://urlan.sourceforge.net/sup.html
 ; External commands used: cp, curl, find, install, rsync
 
@@ -33,7 +33,7 @@ config: context [
 ]
 index: none
 
-;_execute: :print    ; For testing.
+;execute: :print    ; For testing.
 
 fatal: func ['code msg] [
     print msg
@@ -90,6 +90,10 @@ checksum-str: func [file] [
 
 http-url?: func [url] [
     eq? "http" slice url 4
+]
+
+ssh-opt: func [url] [
+    either eq? '/' first url "" "-e ssh "
 ]
 
 valid-name?: func [name] [
@@ -297,7 +301,7 @@ switch act [
             ]
         ][
             execute rejoin [
-                "rsync -a -e ssh --exclude=lock --exclude=config "
+                "rsync -a " ssh-opt url "--exclude=lock --exclude=config "
                 either fetch-index "" "--exclude=index "
                 terminate url '/' ' ' sup-dir
             ]
@@ -313,7 +317,7 @@ switch act [
             fatal usage "Cannot push to HTTP remote"
         ]
         execute rejoin [
-            "rsync -a -e ssh --exclude=lock --exclude=config "
+            "rsync -a " ssh-opt url "--exclude=lock --exclude=config "
             sup-dir "/ " url
         ]
     ]
