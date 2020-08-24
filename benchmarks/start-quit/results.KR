@@ -5,21 +5,27 @@ Binaries
 /usr/bin/perl: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.18, stripped
 /usr/bin/php: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.32, stripped
 /usr/bin/python: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.18, stripped
+/usr/bin/python3: ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 3.2.0, BuildID[sha1]=6b8a05bb49d2cb34abfa307e47722570a1165d3a, stripped
 /usr/bin/rebol: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.0.0, stripped
 /usr/bin/r3: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.32, stripped
 
 Instructions   Heap   Command            Version
 --------------------------------------------------------
    1381890      91952 boron quit.x       0.1.11
-   1421551      91896 boron quit.x       0.2.4
    1470811      94032 boron quit.x       0.2.10
+   1516027     102480 boron quit.x       0.3.2
+   1295499     108056 boron quit.x       2.0.2
     843503      33560 lua quit.x         5.1.4
+   1776144      31952 lua quit.x         5.3.5
    1913700     184448 perl quit.x        5.10.1
    1635768     185432 perl quit.x        5.14.2
    1774311     195512 perl quit.x        5.16.3
+   2678175     223000 perl quit.x        5.28.2
   18660798    2799040 php quit.x         5.3.20
+  24428957    1884536 php quit.x         7.3.11
   42064973    2399896 python quit.x      2.6.4
   52786470    2132896 python quit.x      2.7.2
   27281586    2158096 python quit.x      2.7.5
+  40193463    2179304 python3 quit.x     3.7.5
   28047565    1766552 rebol -q quit.x    Core 2.6.2
   24522212    1607952 r3 quit.x          3.0 Alpha
