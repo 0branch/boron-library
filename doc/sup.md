@@ -1,6 +1,6 @@
 ---
 title:  Sup
-date:   Version 0.6.7, 2020-07-30
+date:   Version 0.6.9, 2020-09-06
 ---
 
 
@@ -31,7 +31,7 @@ The scripts can be downloaded directly to your `~/bin` with these commands:
 
     curl -s -L https://tinyurl.com/boron-library-sup -o ~/bin/sup
     curl -s -L https://tinyurl.com/sup-git -o ~/bin/sup-git
-	chmod +x ~/bin/sup ~/bin/sup-git
+    chmod +x ~/bin/sup ~/bin/sup-git
 
 If you download via another method make sure to rename or link the scripts
 without the `.b` filename extension.
@@ -75,7 +75,8 @@ Running `sup` without arguments will show the usage and available actions.
       pull [<remote>] [-i]  Transfer files from remote to local supplement.
       push [<remote>]       Transfer files from local to remote supplement.
       remove <files>        Remove files from the index and working directory.
-      reset [<remote>]      Restore working files from index.
+      reset [<files>] [-r <remote>]
+                            Restore working files from index.
       source <name> <url>   Define remote supplement to fetch files from.
       verify                Show working files which do not match the index.
 
@@ -145,7 +146,8 @@ Sup will return an exit status of 1 if any specified file is not present
 in the index.
 
 ## Reset
-Restore all working files to those listed in the index.
+Restore working files to those listed in the index.  If no files are specified
+then all changed files are restored.
 
 If [repository mode] is not enabled then any modified files must be
 downloaded from an HTTP remote.  The optional remote name can be specified in

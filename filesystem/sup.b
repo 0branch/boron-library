@@ -1,5 +1,5 @@
 #!/usr/bin/boron -sp
-; Supplement file tracker v0.6.8.
+; Supplement file tracker v0.6.9.
 ; Documentation is at http://urlan.sourceforge.net/sup.html
 ; External commands used: cp, curl, find, install, rsync
 
@@ -16,7 +16,8 @@ Actions:
   pull [<remote>] [-i]  Transfer files from remote to local supplement.
   push [<remote>]       Transfer files from local to remote supplement.
   remove <files>        Remove files from the index and working directory.
-  reset [<remote>]      Restore working files from index.
+  reset [<files>] [-r <remote>]
+                        Restore working files from index.
   source <name> <url>   Define remote supplement to fetch files from.
   verify                Show working files which do not match the index.
 }}
@@ -100,6 +101,20 @@ valid-name?: func [name] [
     alpha: charset "abcdefghijklmnopqrstuvwxyz"
     alpha-num: or alpha charset "0123456789-_"
     parse name [alpha any alpha-num]
+]
+
+filter-index: func [idx files] [
+    if empty? files [
+        return idx
+    ]
+    fin: []
+    forall files [
+        fn: join local-path first files
+        if pos: find idx fn [
+            append fin slice prev pos 2
+        ]
+    ]
+    fin
 ]
 
 init-repository: func [repo] [
@@ -323,16 +338,22 @@ switch act [
     ]
 
     reset [
+        url: none
+        files: []
+        parse next args [some[
+            "-r" set url skip | set fn skip (append files fn)
+        ]]
+
         set-sroot
         load-config
         either config/repository [
-            copy-from-index load-index
+            copy-from-index filter-index load-index files
         ][
-            url: config-url second args
+            url: config-url url
             ifn http-url? url [
                 fatal usage "Cannot reset via rsync in lean mode"
             ]
-            foreach [cs fn] load-index [
+            foreach [cs fn] filter-index load-index files [
                 if any [
                     not exists? fn
                     ne? cs checksum-str fn
