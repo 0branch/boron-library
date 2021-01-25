@@ -1,10 +1,10 @@
 #!/usr/bin/boron -s
 ; Show x86 CPU C6 State using Linux msr device.
-; Requires Boron 2.0.
+; Requires Boron 2.0.4.
 
 read-msr: func [msr int!] [
     skip f: open %/dev/cpu/0/msr msr    ; See man msr.
-    parse/binary read/part f 8 [val: u64]
+    parse read/part f 8 [bits [val: u64]]
     close f
     to-hex val
 ]
