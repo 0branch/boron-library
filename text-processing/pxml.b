@@ -1,5 +1,5 @@
 #!/usr/bin/boron -s
-; Process XML v1.0
+; Process XML v1.0.1
 
 usage: {{
     Usage: pxml [OPTIONS] <xml-file>
@@ -95,7 +95,7 @@ xml-processor: context [
     ]
 
     paren: make paren! 16
-    name-term:  charset " >"
+    name-term:  charset " />"
     digits:     charset "0-9"
     word-chars: charset "a-z0-9_?!"
 
